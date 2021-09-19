@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include <Espalexa.h>
 #include <time.h>
 #include <TimeLib.h>
@@ -25,17 +24,16 @@ const int OPN_SPEED = 33; //right rotational speed set (-100 is max speed to rig
 const int CLS_SPEED = -22;  //left rotational speed set (+100 is max speed to left)
 const int Z_SPEED = 0;  // zero speed set to stop
 
+// variables
 int microSec;
 int speedset_OPN, speedset_CLS, speedset_Z;
 boolean light_on = 0;
 boolean  flag_close_cmd = 0;
 boolean  flag_open_cmd = 0;
 
-
 RTC_DATA_ATTR int bootCount = 0;
 RTC_DATA_ATTR boolean INIT = true;
 
-// variables
 
 
 // prototypes
@@ -52,8 +50,9 @@ Ticker serv1;
 Ticker light;
 Ticker checklight;
 
-
-
+//------------------------------------------------------------------------------------------------
+// setup()
+//------------------------------------------------------------------------------------------------
 void setup(){
   boolean flag_loop_init = true;
   boolean flag_initialTimeSynchronized;
@@ -64,15 +63,17 @@ void setup(){
   
   pinMode(LED,OUTPUT);
 
-  if(INIT){
+  //**イニシャル起動時にまず時刻同期
+  if(INIT) {
     timesynch();
     flag_initialTimeSynchronized = INIT;
     INIT = false;
-    goto timecheck;//初回はスリープサイクルをスキップさせる。
+    goto timecheck;//初回はスリープサイクルをスキップさせ、動作設定時刻かどうかをチェックさせる。
   }
 
-  //**スリープサイクル********
-  if(bootCount>=20) {//スリープを指定回数繰り返す。30秒スリープを20回繰り返すと10分になる。
+
+  //**スリープサイクル(30秒スリープを20回繰り返すと10分になる)******
+  if(bootCount>=20) {//20回スリープしたので時刻を確認する。
     struct tm localTime;
     getLocalTime(&localTime);
     setTime(mktime(&localTime)+JST);
@@ -81,15 +82,17 @@ void setup(){
 timecheck:
     while((START1<=hour())^(hour()<END1)^(START1<END1) || (START2<=hour())^(hour()<END2)^(START2<END2)) {
       //--------メインタスクの実行--------------------------------------   
-      if(flag_loop_init){
-        
-        //メインタスクの初期設定
+      if(flag_loop_init) {//メインタスクの初期設定
+                
         if(!flag_initialTimeSynchronized){//イニシャル起動時はすでに同期しているので時刻同期をスキップする。
           timesynch();
         }
   
         Serial.println("**** Wake Up. Start main task !!!! *****");
+        
+        //メインタスクが実行中であることがわかるように5秒毎にLEDを光らせる周期タスクを開始
         checklight.attach_ms(5000, checkLED);//
+
         //サーボモータとリミットスイッチのI/O初期化処理
         pinMode(PWM_OUT,OUTPUT);
         pinMode(CLS_SW,INPUT_PULLUP);
@@ -97,6 +100,7 @@ timecheck:
         pinMode(OPN_SW,INPUT_PULLUP);
         attachInterrupt(OPN_SW, openSwitchOn, RISING); //GPIO割り込みで停止処置を呼ぶ設定
 
+        //サーボモータの回転速度設定から指令パルス幅(μsec)への変換
         speedset_OPN = map(OPN_SPEED,-100,100,deg000,deg180);
         speedset_CLS = map(CLS_SPEED,-100,100,deg000,deg180);
         speedset_Z = map(Z_SPEED,-100,100,deg000,deg180); 
@@ -109,9 +113,9 @@ timecheck:
       }//メインタスクの初期設定ここまで
       
       //--------メインタスクのループ実行--------------------------------------
-      for(int i=0;i<10;i++){//一分毎に繰り返すループ
+      for(int i=0;i<10;i++){//10回で10分間繰り返すループ
         Serial.printf("espalexa is running... %02d:%02d:%02d\n", hour(), minute(), second());
-        for(int j=0;j<120;j++){//一秒毎に繰り返すループ
+        for(int j=0;j<120;j++){//60秒間繰り返すループ
           espalexa.loop();
               delay(500);
         }
@@ -133,21 +137,24 @@ timecheck:
   bootCount++;
 
 
-
+  //------------------------------------------------------------------------------------------------
   //スリープ移行処理
+  //------------------------------------------------------------------------------------------------
   Serial.println("!!!!!! Sleep count: " + String(bootCount));
   esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
-  Serial.println("Setup ESP32 to sleep for every " + String(TIME_TO_SLEEP) +
-  " Seconds");
+  Serial.println("Setup ESP32 to sleep for every " + String(TIME_TO_SLEEP) + " Seconds");
   Serial.println("Going to sleep now");
   Serial.flush(); 
-  esp_deep_sleep_start();
+  esp_deep_sleep_start();// *************ここでスリープ開始*************************************
   Serial.println("This will never be printed");
 }
 
 void loop(){
   //This is not going to be called
 }
+
+
+
 
 void checkLED(){  // LEDをフラッシュさせる。(delayを使わずにtiker実行により点滅タイミングを作る)
     digitalWrite(LED, HIGH);
