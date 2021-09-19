@@ -1,0 +1,33 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "C:/Users/takes/OneDrive/ドキュメント/Arduino/libraries",
+                "C:/Program Files (x86)/Arduino/libraries",
+                "C:/Program Files (x86)/Arduino/hardware",
+                "C:/Program Files (x86)/Arduino/tools"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "windows-msvc-x64",
+            "browse": {
+                "path": [
+                    "${workspaceFolder}/**",
+                    "C:/Users/takes/OneDrive/ドキュメント/Arduino/libraries",
+                    "C:/Users/takes/OneDrive/ドキュメント/Arduino",
+                    "C:/Program Files (x86)/Arduino/libraries",
+                    "C:/Program Files (x86)/Arduino/hardware",
+                    "C:/Program Files (x86)/Arduino/tools"
+                ]
+            }
+        }
+    ],
+    "version": 4
+}
