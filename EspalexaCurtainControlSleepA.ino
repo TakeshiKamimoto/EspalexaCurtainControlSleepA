@@ -220,6 +220,7 @@ void pwm(){  // サーボモーターへの制御パルス出力
   delayMicroseconds(microSec);
   digitalWrite(PWM_OUT, LOW);
 }
+
 void firstLightChanged(uint8_t brightness) {
     Serial.print("Device 1 changed to ");
     
