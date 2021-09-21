@@ -33,7 +33,7 @@ boolean light_on = 0;
 boolean  flag_close_cmd = 0;
 boolean  flag_open_cmd = 0;
 
-RTC_DATA_ATTR int bootCount = 0;  //このRTCメモリの変数はスリープ状態からののリブート時のリセットでクリアされない。
+RTC_DATA_ATTR int bootCount = 0;  //このRTCメモリの変数はスリープ状態からのリブート時にはクリアされない。スリープした回数を数える。
 RTC_DATA_ATTR boolean INIT = true;
 
 
