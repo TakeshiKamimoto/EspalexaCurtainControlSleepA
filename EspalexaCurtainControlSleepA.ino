@@ -5,7 +5,7 @@
 #include <esp_sntp.h>
 #include <Ticker.h>
 
-#define START1  5   //朝の開始時刻
+#define START1  5   //朝の開始時刻 ( 5 は 午前5時を示す）
 #define END1    8   //朝の終了時刻
 #define START2  17  //夕の開始時刻
 #define END2    18  //夕の終了時刻
@@ -13,7 +13,9 @@
 #define JST     3600*9
 #define uS_TO_S_FACTOR 1000000ULL  /* Conversion factor for micro seconds to seconds */
 #define TIME_TO_SLEEP  30        /* Time ESP32 will go to sleep (in seconds) */
-#define LED   16
+
+//GPIO numbers
+#define LED       16
 #define PWM_OUT   15
 #define CLS_SW    12 // Left switch (Normally closed contact)
 #define OPN_SW     5 // Right switch (Normally closed contact)
@@ -31,7 +33,7 @@ boolean light_on = 0;
 boolean  flag_close_cmd = 0;
 boolean  flag_open_cmd = 0;
 
-RTC_DATA_ATTR int bootCount = 0;
+RTC_DATA_ATTR int bootCount = 0;  //このRTCメモリの変数はスリープ状態からののリブート時のリセットでクリアされない。
 RTC_DATA_ATTR boolean INIT = true;
 
 
@@ -225,7 +227,7 @@ void pwm(){  // サーボモーターへの制御パルス出力
 }
 
 //------------------------------------------------------------------------------------------------
-//alexaから呼ばれる関数。brightness値を解析して操作を行う関数を呼ぶ
+//alexaから飛んでくる指示の処理。送られてきたbrightness値を解析し、結果に応じてカーテンの操作を行う関数を呼ぶ
 //------------------------------------------------------------------------------------------------
 void firstLightChanged(uint8_t brightness) {
     Serial.print("Device 1 changed to ");
