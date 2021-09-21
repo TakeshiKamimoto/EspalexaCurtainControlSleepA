@@ -149,6 +149,7 @@ timecheck:
   Serial.println("This will never be printed");
 }
 
+
 void loop(){
   //This is not going to be called
 }
@@ -174,7 +175,9 @@ void flushLED(){  // LEDを点滅させる。(delayを使わずにtiker実行に
 }
 
 
-
+//------------------------------------------------------------------------------------------------
+//WiFiに接続してntpサーバと時刻同期
+//------------------------------------------------------------------------------------------------
 void timesynch() {
   WiFiManager wm;   // added for WiFi Manager
   if (!wm.autoConnect("ESP32")) {     // added for WiFi Manager
@@ -221,6 +224,9 @@ void pwm(){  // サーボモーターへの制御パルス出力
   digitalWrite(PWM_OUT, LOW);
 }
 
+//------------------------------------------------------------------------------------------------
+//alexaから呼ばれる関数。brightness値を解析して操作を行う関数を呼ぶ
+//------------------------------------------------------------------------------------------------
 void firstLightChanged(uint8_t brightness) {
     Serial.print("Device 1 changed to ");
     
@@ -243,14 +249,9 @@ void firstLightChanged(uint8_t brightness) {
     }
 }
 
-
-void control_stop(){  // 停止させる
-  microSec = speedset_Z;
-  serv1.detach();
-  light.detach();
-  digitalWrite(LED,LOW);
-}
-
+//------------------------------------------------------------------------------------------------
+//開・閉・停止操作を実行する関数
+//------------------------------------------------------------------------------------------------
 void control_open(){
    flag_open_cmd = 1;
   microSec = speedset_OPN; // OPEN側へ動かす
@@ -263,4 +264,11 @@ void control_close() {
   microSec = speedset_CLS; // CLOSE側へ動かす
   serv1.attach_ms(20, pwm); 
   light.attach_ms(1000, flushLED); // 1000msec周期でflushLED()を実行
+}
+
+void control_stop(){  // 停止させる
+  microSec = speedset_Z;
+  serv1.detach();
+  light.detach();
+  digitalWrite(LED,LOW);
 }
