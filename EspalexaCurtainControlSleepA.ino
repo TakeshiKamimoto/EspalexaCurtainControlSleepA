@@ -22,8 +22,8 @@
 
 const int deg000 = 500; // Servomotor control signal pulse width minimum [microSec]
 const int deg180 = 2400; // Servomotor control signal pulse width maximum [microSec]
-const int OPN_SPEED = 33; //right rotational speed set (-100 is max speed to right)
-const int CLS_SPEED = -22;  //left rotational speed set (+100 is max speed to left)
+const int OPN_SPEED = 33; //right rotational speed set (+100 is max speed to right)
+const int CLS_SPEED = -22;  //left rotational speed set (-100 is max speed to left)
 const int Z_SPEED = 0;  // zero speed set to stop
 
 // variables
