@@ -6,7 +6,7 @@
 #include <Ticker.h>
 
 #define START1  5   //朝の開始時刻 ( 5 は 午前5時を示す）
-#define END1    8   //朝の終了時刻
+#define END1    7   //朝の終了時刻
 #define START2  17  //夕の開始時刻
 #define END2    18  //夕の終了時刻
 
