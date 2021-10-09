@@ -32,6 +32,7 @@ int speedset_OPN, speedset_CLS, speedset_Z;
 boolean light_on = 0;
 boolean  flag_close_cmd = 0;
 boolean  flag_open_cmd = 0;
+boolean  flag_interrupt = false;
 
 RTC_DATA_ATTR int bootCount = 0;  //このRTCメモリの変数はスリープ状態からのリブート時にはクリアされない。スリープした回数を数える。
 RTC_DATA_ATTR boolean INIT = true;
@@ -65,6 +66,15 @@ void setup(){
   
   pinMode(LED,OUTPUT);
 
+  // GPIO割り込み発生時の処理。BOOT SWを押したときにスリープ状態から起きてここが実行される 
+  esp_sleep_wakeup_cause_t wakeup_reason;
+  wakeup_reason = esp_sleep_get_wakeup_cause();
+  if(wakeup_reason == ESP_SLEEP_WAKEUP_EXT0) {
+    Serial.println("******* EXT0 INTERRUPT ******");
+    flag_interrupt = true;
+    bootCount=20;
+  }
+
   //**イニシャル起動時にまず時刻同期
   if(INIT) {
     timesynch();
@@ -82,7 +92,7 @@ void setup(){
     Serial.printf("%02d:%02d:%02d\n", hour(), minute(), second());
     
 timecheck:
-    while((START1<=hour())^(hour()<END1)^(START1<END1) || (START2<=hour())^(hour()<END2)^(START2<END2)) {
+    while((START1<=hour())^(hour()<END1)^(START1<END1) || (START2<=hour())^(hour()<END2)^(START2<END2) || flag_interrupt) {
       //--------メインタスクの実行--------------------------------------   
       if(flag_loop_init) {//メインタスクの初期設定
                 
@@ -123,6 +133,7 @@ timecheck:
         }
       }
       flag_mainTask_executed = true;
+      flag_interrupt = false;
       
     }//End of While loop
 
@@ -143,6 +154,7 @@ timecheck:
   //スリープ移行処理
   //------------------------------------------------------------------------------------------------
   Serial.println("!!!!!! Sleep count: " + String(bootCount));
+  esp_sleep_enable_ext0_wakeup(GPIO_NUM_0,0); //BOOT SWが押されたら起きるためのスリープ設定
   esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
   Serial.println("Setup ESP32 to sleep for every " + String(TIME_TO_SLEEP) + " Seconds");
   Serial.println("Going to sleep now");
